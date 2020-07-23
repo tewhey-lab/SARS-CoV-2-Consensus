@@ -10,10 +10,3 @@ The user should also have modules for `java`, `bwa`, `samtools` and `ivar` avail
 
 The IDX file is a bwa index file generated from a single file comprised of the human genome and transcriptome references.
 The REF file is the SARS-CoV2 reference fasta.
-
-*sars_cov_2_consensus.wdl*
-
-To run this wdl, make sure you have the modules, directories, and files listed above for `sars_cov_2_consensus.sh`, as well as for `cromwell` and `womtool`.
-Fill out the `sars_cov_2_consensus_inputs.json` file with your paths, files, and IDs.
-
-Once the input json is filled out run the wdl with `cromwell run sars_cov_2_consensus.wdl --inputs sars_cov_2_consensus_inputs.json`. Each shard and task will submit as its own slurm job, but it is suggested to run this in a tmux session so you can continue to use your terminal window.
