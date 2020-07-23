@@ -31,8 +31,8 @@ workflow CovidMap {
                             id_out = sample.left
                           }
       call MapBam { input:
-                          filtered_1 = R1_filtered,
-                          filtered_2 = R2_filtered,
+                          filtered_1 = MapHuman.R1_filtered,
+                          filtered_2 = MapHuman.R2_filtered,
                           reference_fasta = reference_fasta,
                           id_out = sample.left
                       }
