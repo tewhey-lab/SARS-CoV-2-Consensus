@@ -182,7 +182,7 @@ task ConsensusGFF {
     File reference_gff
     String id_out
     command {
-        samtools mpileup -A -d 0 -Q 0 --reference ${reference_fasta} ${clipped_bam} | ivar variants -g ${reference_gff} -r ${reference_fasta} -p ${id_out}.consensus -t 0.05
+        samtools mpileup -A -d 0 -Q 0 --reference ${reference_fasta} ${clipped_bam} | ivar variants -r ${reference_fasta} -p ${id_out}.consensus -t 0.05
       }
     runtime { runtime_minutes: 15
               requested_memory_mb_per_core: 900

@@ -21,7 +21,7 @@ echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --bo
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "samtools mpileup -A -d 0 -Q 0 -B mapping/${ID}.clipped.bam | ivar consensus -p mapping/${ID}.consensus" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | ivar variants -g ${REF%%.fa}.gff -r $REF -p mapping/${ID}.consensus -t 0.7" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | ivar variants -r $REF -p mapping/${ID}.consensus -t 0.7" >> slurm/slurm.${ID}.runCMD.sh
 done < samples.list
 
 for i in `ls slurm/*runCMD.sh`; do echo $i; sbatch $i; done
