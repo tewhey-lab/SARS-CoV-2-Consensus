@@ -104,7 +104,7 @@ task MapHuman {
     bwa aln -t 4 ${IDX} ${trimmed_1} > ${id_out}.R1.sai
     bwa aln -t 4 ${IDX} ${trimmed_2} > ${id_out}.R2.sai
     bwa sampe ${IDX} ${id_out}.R1.sai ${id_out}.R2.sai ${trimmed_1} ${trimmed_2} > ${id_out}_human.sam
-    samtools fastq -1 ${id_out}_filtered.R1.fastq -2 ${id_out}_filtered.R2.fastq -0 /dev/null -n -f 0x4 ${id_out}_human.sam
+    samtools fastq -1 ${id_out}_filtered.R1.fastq -2 ${id_out}_filtered.R2.fastq -0 /dev/null -s /dev/null -n -f 0x4 ${id_out}_human.sam
    }
   runtime { runtime_minutes: 15
              requested_memory_mb_per_core: 900
