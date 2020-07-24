@@ -21,7 +21,7 @@ echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --bo
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "samtools view -b mapping/${ID}.clipped.bam | genomeCoverageBed -d -ibam stdin > QC/${ID}.hist" >>slurm/slurm.${ID}.runCMD.sh
-echo "Rscript /projects/tewhey-lab/deweyh/covid/scripts//coverage_hist.R $ID QC/${ID}.hist"
+echo "Rscript /projects/tewhey-lab/deweyh/covid/scripts/coverage_hist.R QC/${ID} QC/${ID}.hist" >>slurm/slurm.${ID}.runCMD.sh
 
 echo "samtools mpileup -A -d 0 -Q 0 -B mapping/${ID}.clipped.bam | ivar consensus -p working_consensus/${ID}.consensus" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | ivar variants -g ${REF%%.fa}.gff -r $REF -p working_consensus/${ID}.consensus -t 0.7" >> slurm/slurm.${ID}.runCMD.sh
