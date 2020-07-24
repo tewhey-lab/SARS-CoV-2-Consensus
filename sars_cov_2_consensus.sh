@@ -20,8 +20,11 @@ echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_f
 echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --strand  --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
-echo "samtools mpileup -A -d 0 -Q 0 -B mapping/${ID}.clipped.bam | /projects/tewhey-lab/deweyh/bin/ivar consensus -p mapping/${ID}.consensus" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | /projects/tewhey-lab/deweyh/bin/ivar variants -g ${REF%%.fa}.gff -r $REF -p mapping/${ID}.consensus -t 0.7" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view -b mapping/${ID}.clipped.bam | genomeCoverageBed -d -ibam stdin > QC/${ID}.hist" >>slurm/slurm.${ID}.runCMD.sh
+echo "Rscript /projects/tewhey-lab/deweyh/covid/scripts//coverage_hist.R $ID QC/${ID}.hist"
+
+echo "samtools mpileup -A -d 0 -Q 0 -B mapping/${ID}.clipped.bam | /projects/tewhey-lab/deweyh/bin/ivar/ivar consensus -p working_consensus/${ID}.consensus" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | /projects/tewhey-lab/deweyh/bin/ivar/ivar variants -g ${REF%%.fa}.gff -r $REF -p working_consensus/${ID}.consensus -t 0.7" >> slurm/slurm.${ID}.runCMD.sh
 done < samples.list
 
 for i in `ls slurm/*runCMD.sh`; do echo $i; sbatch $i; done
