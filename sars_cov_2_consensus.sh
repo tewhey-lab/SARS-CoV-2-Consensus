@@ -13,7 +13,7 @@ echo "java -jar /projects/tewher/bin/Trimmomatic-0.38/trimmomatic-0.38.jar PE $R
 
 echo "bwa mem -t 4 $IDX reads/${ID}.R1.trimmed.fastq reads/${ID}.R2.trimmed.fastq > mapping/${ID}_human.sam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools view -F 260 mapping/${ID}_human.sam > mapping/${ID}_human_primary.sam" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools view mapping/${ID}_human_primary.sam | awk '{ if ('$3' == '"*"'' | '$3' == '"NC_045512.2"') {print} }' > mapping/${ID}_human_primary_filtered.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view mapping/${ID}_human_primary.sam | awk '{ if (\$3 == \"*\" | \$3 == \"NC_045512.2\") {print} }' > mapping/${ID}_human_primary_filtered.sam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools fastq -1 mapping/${ID}_filtered.R1.fq -2 mapping/${ID}_filtered.R2.fq -0 /dev/null -s /dev/null -n mapping/${ID}_human_primary_filtered.sam" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
