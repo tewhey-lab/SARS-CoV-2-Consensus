@@ -12,7 +12,9 @@ cp slurm/header.txt slurm/slurm.${ID}.runCMD.sh
 echo "java -jar /projects/tewher/bin/Trimmomatic-0.38/trimmomatic-0.38.jar PE $R1 $R2 reads/${ID}.R1.trimmed.fastq reads/${ID}.R1.unmated.fastq reads/${ID}.R2.trimmed.fastq reads/${ID}.R2.unmated.fastq ILLUMINACLIP:/projects/tewher/bin/Trimmomatic-0.38/adapters/NexteraPE-PE.fa:2:30:10:2:TRUE MINLEN:25 &> reads/${ID}.trim.log" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "bwa mem -t 4 $IDX reads/${ID}.R1.trimmed.fastq reads/${ID}.R2.trimmed.fastq > mapping/${ID}_human.sam" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools fastq -1 mapping/${ID}_filtered.R1.fq -2 mapping/${ID}_filtered.R2.fq -0 /dev/null -s /dev/null -n -f 0x4 mapping/${ID}_human.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view -F 260 mapping/${ID}_human.sam > mapping/${ID}_human_primary.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view mapping/${ID}_human_primary.sam | awk '{ if ('$3' == '"*"'' | '$3' == '"NC_045512.2"') {print} }' > mapping/${ID}_human_primary_filtered.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools fastq -1 mapping/${ID}_filtered.R1.fq -2 mapping/${ID}_filtered.R2.fq -0 /dev/null -s /dev/null -n mapping/${ID}_human_primary_filtered.sam" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
 echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --strand  --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
