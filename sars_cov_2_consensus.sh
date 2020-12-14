@@ -20,8 +20,14 @@ echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_f
 echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --strand  --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
-echo "samtools view -b mapping/${ID}.clipped.bam | genomeCoverageBed -d -ibam stdin > QC/${ID}.hist" >>slurm/slurm.${ID}.runCMD.sh
-echo "Rscript /projects/tewhey-lab/projects/COVID/scripts/coverage_hist.R QC/${ID} QC/${ID}.hist" >>slurm/slurm.${ID}.runCMD.sh
+echo "samtools view -b mapping/${ID}.clipped.bam | genomeCoverageBed -d -ibam stdin > QC/${ID}.hist" >> slurm/slurm.${ID}.runCMD.sh
+echo "Rscript /projects/tewhey-lab/projects/COVID/scripts/coverage_hist.R QC/${ID} QC/${ID}.hist" >> slurm/slurm.${ID}.runCMD.sh
+echo "Rscript /projects/tewhey-lab/deweyh/covid/scripts/med_seq_uniformity.R ${ID} QC/${ID}.hist QC/med_seq_uniform.out" >> slurm/slurm.${ID}.runCMD.sh
+echo "echo "${ID}" `zcat ${R1} | sed -n '2~4p' | wc -m` >> QC/seq_yeild.out" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools stats mapping/${ID}.clipped.bam | grep ^SN | cut -f 2- > QC/${ID}_bam_stats.out" >> slurm/slurm.${ID}.runCMD.sh
+echo "echo "${ID}" `grep 'insert size average' QC/${ID}_bam_stats.out | awk 'NF>1{print $NF}'` `grep 'total length' QC/${ID}_bam_stats.out | awk '{print $3}'` `grep 'bases mapped (cigar)' QC/${ID}_bam_stats.out | awk '{print $4}'` >> QC/insert_length.out" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view -F 256 mapping/${ID}_human.sam | awk '{print $3}' | sort > QC/${ID}_mapped_to.out" >> slurm/slurm.${ID}.runCMD.sh
+echo "echo "${ID}" `grep -E 'ASSI|NC_045512.2|\*' QC/${ID}_mapped_to.out | wc -l` `cat QC/${ID}_mapped_to.out | wc -l` >> QC/human_reads.out" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "samtools mpileup -A -d 0 -Q 0 -B mapping/${ID}.clipped.bam | ivar consensus -t 0 -p working_consensus/${ID}.consensus" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | ivar variants -g ${REF%%.fa}.gff -r $REF -p working_consensus/${ID}.consensus -t 0.05" >> slurm/slurm.${ID}.runCMD.sh
