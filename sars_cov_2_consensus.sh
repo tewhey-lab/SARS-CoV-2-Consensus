@@ -8,6 +8,8 @@ ID=`echo $line | awk '{print $1}'`;
 REF="/projects/tewhey-lab/projects/COVID/reference_files/NC_045512.fa"
 IDX="/projects/tewhey-lab/projects/COVID/reference_files/hg38_gencode34_cov2_spike_idx"
 
+echo $ID
+
 cp slurm/header.txt slurm/slurm.${ID}.runCMD.sh
 echo "java -jar /projects/tewher/bin/Trimmomatic-0.38/trimmomatic-0.38.jar PE $R1 $R2 reads/${ID}.R1.trimmed.fastq reads/${ID}.R1.unmated.fastq reads/${ID}.R2.trimmed.fastq reads/${ID}.R2.unmated.fastq ILLUMINACLIP:/projects/tewher/bin/Trimmomatic-0.38/adapters/NexteraPE-PE.fa:2:30:10:2:TRUE MINLEN:25 &> reads/${ID}.trim.log" >> slurm/slurm.${ID}.runCMD.sh
 
@@ -26,6 +28,6 @@ echo "Rscript /projects/tewhey-lab/projects/COVID/scripts/coverage_hist.R QC/${I
 echo "samtools mpileup -A -d 0 -Q 0 -B mapping/${ID}.clipped.bam | ivar consensus -t 0 -p working_consensus/${ID}.consensus" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools mpileup -A -d 0 -Q 0 --reference $REF mapping/${ID}.clipped.bam | ivar variants -g ${REF%%.fa}.gff -r $REF -p working_consensus/${ID}.consensus -t 0.05" >> slurm/slurm.${ID}.runCMD.sh
 echo "python /projects/tewhey-lab/projects/COVID/scripts/trim_ends_fasta.py working_consensus/${ID}.consensus.fa 80 working_consensus/${ID}.consensus.trimmed" >> slurm/slurm.${ID}.runCMD.sh
-done < 20210108_samples_list.txt
+done < 20210303_samples_list.txt
 
 for i in `ls slurm/*runCMD.sh`; do echo $i; sbatch $i; done
