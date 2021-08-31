@@ -6,7 +6,7 @@ R1=`echo $line | awk '{print $2}'`;
 R2=`echo $line | awk '{print $3}'`;
 ID=`echo $line | awk '{print $1}'`;
 REF="/projects/tewhey-lab/projects/COVID/reference_files/NC_045512.fa"
-IDX="/projects/tewhey-lab/projects/COVID/reference_files/hg38_gencode34_cov2_spike_idx"
+IDX="/projects/tewhey-lab/projects/COVID/reference_files/hg38_gencode34_cov2_spike96_idx2"
 
 echo $ID
 
@@ -18,7 +18,8 @@ echo "samtools view -F 256 mapping/${ID}_human.sam | awk '{ if (\$3==\"*\" || \$
 echo "picard FilterSamReads -Xmx3g I=mapping/${ID}_human.sam O=mapping/${ID}_human_filtered.sam READ_LIST_FILE=mapping/${ID}_to_keep.txt FILTER=includeReadList" >>slurm/slurm.${ID}.runCMD.sh
 echo "samtools fastq -1 mapping/${ID}_filtered.R1.fq -2 mapping/${ID}_filtered.R2.fq -0 /dev/null -s /dev/null -n mapping/${ID}_human_filtered.sam" >> slurm/slurm.${ID}.runCMD.sh
 
-echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
+# echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
+echo "minimap2 -K 20M -x sr -a $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u -h -F 4 - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
 echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --strand  --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
