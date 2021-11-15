@@ -20,7 +20,16 @@ echo "samtools fastq -1 mapping/${ID}_filtered.R1.fq -2 mapping/${ID}_filtered.R
 
 # echo "bwa mem -k 12 -B 1 -t 12 $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
 echo "minimap2 -K 20M -x sr -a $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u -h -F 4 - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
-echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --tolerance 1 --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
+
+##Remove soft-clipped reads
+echo "samtools view mapping/${ID}.bam | awk '$6 ~ /H|S/{print $1}' | sort -k1,1 | uniq > mapping/${ID}_names.txt" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view mapping/${ID}.bam | sort -k1,1 > mapping/${ID}_names_tmp.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view -H mapping/${ID}.bam > mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "join -t $'\t' -v 1 -1 1 -2 1 mapping/${ID}_names_tmp.sam mapping/${ID}_names.txt >> mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view -bS mapping/${ID}_ClipRemoved.sam > mapping/${ID}_ClipRemoved.bam" >> slurm/slurm.${ID}.runCMD.sh
+echo "rm mapping/${ID}_names_tmp.sam mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
+
+echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --tolerance 1 --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}_ClipRemoved.sam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "samtools view -b mapping/${ID}.clipped.bam | genomeCoverageBed -d -ibam stdin > QC/${ID}.hist" >> slurm/slurm.${ID}.runCMD.sh
