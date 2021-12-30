@@ -29,7 +29,7 @@ echo "join -t $'\t' -v 1 -1 1 -2 1 mapping/${ID}_names_tmp.sam mapping/${ID}_nam
 echo "samtools view -bS mapping/${ID}_ClipRemoved.sam > mapping/${ID}_ClipRemoved.bam" >> slurm/slurm.${ID}.runCMD.sh
 echo "rm mapping/${ID}_names_tmp.sam mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
 
-echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --tolerance 1 --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}_ClipRemoved.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
+echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --strand --tolerance 4 --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v3.bed mapping/${ID}_ClipRemoved.bam |samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools index mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
 
 echo "samtools view -b mapping/${ID}.clipped.bam | genomeCoverageBed -d -ibam stdin > QC/${ID}.hist" >> slurm/slurm.${ID}.runCMD.sh
