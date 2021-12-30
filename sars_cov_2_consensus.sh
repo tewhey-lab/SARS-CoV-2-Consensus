@@ -22,7 +22,7 @@ echo "samtools fastq -1 mapping/${ID}_filtered.R1.fq -2 mapping/${ID}_filtered.R
 echo "minimap2 -K 20M -x sr -a $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_filtered.R2.fq | samtools view -u -h -F 4 - | samtools sort -O BAM -o mapping/${ID}.bam -" >> slurm/slurm.${ID}.runCMD.sh
 
 ##Remove soft-clipped reads
-echo "samtools view mapping/${ID}.bam | awk '$6 ~ /H|S/{print $1}' | sort -k1,1 | uniq > mapping/${ID}_names.txt" >> slurm/slurm.${ID}.runCMD.sh
+echo "samtools view mapping/${ID}.bam | awk '(\$6 ~ /H|S/){print \$1}' | sort -k1,1 | uniq > mapping/${ID}_names.txt" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools view mapping/${ID}.bam | sort -k1,1 > mapping/${ID}_names_tmp.sam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools view -H mapping/${ID}.bam > mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
 echo "join -t $'\t' -v 1 -1 1 -2 1 mapping/${ID}_names_tmp.sam mapping/${ID}_names.txt >> mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
