@@ -23,11 +23,7 @@ echo "minimap2 -K 20M -x sr -a $REF mapping/${ID}_filtered.R1.fq mapping/${ID}_f
 
 ##Remove soft-clipped reads
 echo "samtools view mapping/${ID}.bam | awk '(\$6 ~ /H|S/){print \$1}' | sort -k1,1 | uniq > mapping/${ID}_names.txt" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools view mapping/${ID}.bam | sort -k1,1 > mapping/${ID}_names_tmp.sam" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools view -H mapping/${ID}.bam > mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
-echo "join -t $'\t' -v 1 -1 1 -2 1 mapping/${ID}_names_tmp.sam mapping/${ID}_names.txt >> mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
-echo "samtools view -bS mapping/${ID}_ClipRemoved.sam > mapping/${ID}_ClipRemoved.bam" >> slurm/slurm.${ID}.runCMD.sh
-echo "rm mapping/${ID}_names_tmp.sam mapping/${ID}_ClipRemoved.sam" >> slurm/slurm.${ID}.runCMD.sh
+echo "picard FilterSamReads -Xmx3g I=mapping/${ID}.bam O=mapping/${ID}_ClipRemoved.bam READ_LIST_FILE=mapping/${ID}_names.txt FILTER=excludeReadList" >>slurm/slurm.${ID}.runCMD.sh
 
 echo "/projects/tewhey-lab/rtewhey/COVID/bin/samtools/samtools ampliconclip --both-ends --strand --tolerance 4 --filter-len 20  --no-excluded -b /projects/tewhey-lab/projects/COVID/reference_files/artic_primers_v4.1.bed mapping/${ID}_ClipRemoved.bam > mapping/${ID}.clipped.uncorr.sam" >> slurm/slurm.${ID}.runCMD.sh
 echo "samtools calmd mapping/${ID}.clipped.uncorr.sam /projects/tewhey-lab/projects/COVID/reference_files/NC_045512.fa | samtools view -u - | samtools sort -O BAM -o mapping/${ID}.clipped.bam" >> slurm/slurm.${ID}.runCMD.sh
